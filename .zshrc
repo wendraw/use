@@ -41,6 +41,11 @@ alias release="nr release"
 alias re="nr release"
 
 # -------------------------------- #
+# Python
+# -------------------------------- #
+alias pip="pip3"
+
+# -------------------------------- #
 # Git
 # -------------------------------- #
 
@@ -98,6 +103,28 @@ alias gsha='git rev-parse HEAD | pbcopy'
 
 alias ghci='gh run list -L 1'
 
+alias gmab='git merge --abort'
+alias grbsab='git rebase --abort'
+
+# git merge squash
+function gms() {
+  local branch=${1:-"origin/main"}
+  local commit_msg=${2:-"Merge changes from $branch"}
+  
+  echo "Fetching latest remote code..."
+  git fetch origin
+  
+  echo "Merging changes from $branch into current branch and squashing into a single commit..."
+  git merge --squash "$branch"
+  
+  if [ $? -eq 0 ]; then
+      git commit -m "$commit_msg"
+      echo "Successfully merged changes from $branch into a single commit"
+  else
+      echo "Merge failed, please resolve conflicts and commit manually"
+  fi
+}
+
 function glp() {
   git --no-pager log -$1
 }
@@ -118,12 +145,16 @@ function gdc() {
   fi
 }
 
+function findGitLog() {
+  git log --pretty=format:"%h %s" | grep -i "$1"
+}
+
 # -------------------------------- #
 # Directories
 #
 # I put
 # `~/i` for my projects
-# `~/f` for forks
+# `~/open-codes` for forks
 # `~/r` for reproductions
 # -------------------------------- #
 
@@ -136,7 +167,7 @@ function repros() {
 }
 
 function forks() {
-  cd ~/f/$1
+  cd ~/open-codes/$1
 }
 
 function pr() {
@@ -158,6 +189,9 @@ function clone() {
     hub clone "$@" && cd "$2"
   fi
 }
+
+# Use cursor instead of code
+alias code=cursor
 
 # Clone to ~/i and cd to it
 function clonei() {
@@ -184,26 +218,34 @@ function serve() {
   fi
 }
 
-# 找到���关闭 node 进程
-# 用法: kns [port]
-# 示例: kns      # 关闭所有 node 进程
-#       kns 3000 # 关闭在 3000 端口运行的 node 进程
+# Find and kill node processes
+# Usage: kns [port]
+# Example: kns      # Kill all node processes
+#          kns 3000 # Kill node processes running on port 3000
 function kill-node-server() {
   if [[ -z $1 ]]; then
-    # 如果没有指定端口，关闭所有 node 进程
+    # If no port specified, kill all node processes
     ps aux | grep 'node' | grep -v 'grep' | awk '{print $2}' | xargs kill -9 2>/dev/null
-    echo "已关闭所有 node 进程"
+    echo "All node processes have been terminated"
   else
-    # 如果指定了端口，只关闭对应端口的进程
+    # If port specified, only kill processes on that port
     lsof -i :$1 | grep 'node' | awk '{print $2}' | xargs kill -9 2>/dev/null
-    echo "已关闭端口 $1 的 node 进程"
+    echo "Node processes on port $1 have been terminated"
   fi
 }
 
 alias kns="kill-node-server"
 
+function sourcec() {
+  # copy .zshrc to i/use/zshrc
+  cp ~/.zshrc ~/i/use/.zshrc
+  # source .zshrc
+  source ~/.zshrc
+}
+
+
 # bun completions
-[ -s "/Users/wendraw/.bun/_bun" ] && source "/Users/wendraw/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
