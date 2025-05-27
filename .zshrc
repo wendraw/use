@@ -198,6 +198,10 @@ function clonei() {
   i && clone "$@" && code . && cd ~2
 }
 
+function copyi() {
+  i && npx degit $1 $2 $3 && cd $2 && code . && cd ~2
+}
+
 function cloner() {
   repros && clone "$@" && code . && cd ~2
 }
@@ -257,3 +261,15 @@ export PATH="$VOLTA_HOME/bin:$PATH"
 
 # rust cargo
 export PATH="$HOME/.cargo/bin:$PATH"
+
+# feishu2md
+export PATH="$HOME/.feishu2md:$PATH"
+alias f2m="feishu2md"
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
